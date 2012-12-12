@@ -1,0 +1,2 @@
+#! /bin/sh
+exec rsync --daemon --config="$HOME"/.config/rsyncd.conf --no-detach
