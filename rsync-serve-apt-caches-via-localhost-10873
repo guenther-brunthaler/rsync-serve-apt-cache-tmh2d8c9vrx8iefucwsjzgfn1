@@ -1,2 +1,29 @@
 #! /bin/sh
-exec rsync --daemon --config="$HOME"/.config/rsyncd.conf --no-detach
+# Symlink this file to a directory in $PATH.
+# If the symlink name ends in a different port number, then
+# that port number will be used rather than 10873.
+#
+# (c) 2012 by Günther Brunthaler.
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+set -e
+config=rsyncd.conf
+case $0 in
+	/*) x=$0;;
+	[^/]*/*) x=`pwd`/$0;;
+	*) x=`which "$0"`
+esac
+x=`readlink -f "$x"`
+test -f "$x"
+d=`dirname "$x"`
+test -d "$d"
+b=`basename "$0"`
+port=${b##*-}
+test -z "$port" && port=10873
+config=$d/$config
+test -f "$config"
+echo "Press Strg-C to terminate rsync daemon on localhost:$port."
+echo "Execute"
+echo "$ rsync --port=$port localhost::"
+echo "to list available exported rsync modules."
+exec rsync --port="$port" --daemon --config="$config" --no-detach
